@@ -70,6 +70,7 @@ const $template = document.querySelector('#social-media-post')
 class SocialMediaPost extends HTMLElement {
 	constructor() {
 		super()
+
 		assert($template instanceof HTMLTemplateElement)
 		this.attachShadow({ mode: 'open' })
 		this.shadowRoot?.append($template.content.cloneNode(true))
@@ -83,6 +84,17 @@ class SocialMediaPost extends HTMLElement {
 	static observedAttributes = ['version', 'content', 'user']
 
 	connectedCallback() {
+		this.hidden = true
+		const stylesheet = this.shadowRoot?.querySelector('link[rel=stylesheet]')
+		assert(stylesheet instanceof HTMLLinkElement)
+		if (stylesheet.sheet != null) {
+			this.hidden = false
+		} else {
+			stylesheet.addEventListener('load', () => {
+				this.hidden = false
+			})
+		}
+
 		this.#render()
 		this.#setupEventListeners()
 	}
@@ -252,13 +264,22 @@ const $emojiSizeSlider = document.querySelector('#emoji-size-slider')
 assert($emojiSizeSlider instanceof HTMLInputElement)
 $emojiSizeSlider.disabled = false
 
-$emojiSizeSlider.addEventListener('input', function () {
-	const size = `${parseFloat(this.value)}em`
+/** @param {number} size */
+function updateSize(size) {
+	const style = `${size}em`
 
 	for (const $el of document.querySelectorAll('social-media-post')) {
 		assert($el instanceof HTMLElement)
-		$el.style.setProperty('--emoji-size', size)
+		$el.style.setProperty('--emoji-size', style)
 	}
+
+	assert($emojiSizeSlider instanceof HTMLInputElement)
+	$emojiSizeSlider.value = size.toString()
+}
+
+$emojiSizeSlider.addEventListener('input', function () {
+	const size = parseFloat(this.value)
+	updateSize(size)
 })
 
 /**
