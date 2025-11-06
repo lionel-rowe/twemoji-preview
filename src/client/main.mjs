@@ -63,7 +63,7 @@ const emojis = changedSvgFiles.map((filePath) => {
 		.split('-')
 		.map((cp) => String.fromCodePoint(parseInt(cp, 16)))
 		.join('')
-})
+}).filter((emoji) => emoji != null)
 
 const $template = document.querySelector('#social-media-post')
 
@@ -183,12 +183,15 @@ customElements.define('social-media-post', SocialMediaPost)
 
 const currentPost = document.createElement('social-media-post')
 currentPost.setAttribute('user', repoOwner)
-currentPost.setAttribute('content', `Here are the emojis before:\n${emojis.filter((emoji) => emoji).join('')}`)
+currentPost.setAttribute(
+	'content',
+	`Here ${emojis.length === 1 ? 'is the emoji' : 'are the emojis'} before:\n${emojis.join('')}`,
+)
 
 const prPost = document.createElement('social-media-post')
 prPost.setAttribute('version', commitHash)
 prPost.setAttribute('user', user)
-prPost.setAttribute('content', `Check out my PR [${title}](${htmlUrl})!\n${emojis.filter((emoji) => emoji).join('')}`)
+prPost.setAttribute('content', `Check out my PR [${title}](${htmlUrl})!\n${emojis.join('')}`)
 
 assert($target instanceof HTMLElement)
 $target.appendChild(currentPost)
@@ -244,6 +247,19 @@ function initThemeToggle() {
 		toggleTheme()
 	})
 }
+
+const $emojiSizeSlider = document.querySelector('#emoji-size-slider')
+assert($emojiSizeSlider instanceof HTMLInputElement)
+$emojiSizeSlider.disabled = false
+
+$emojiSizeSlider.addEventListener('input', function () {
+	const size = `${parseFloat(this.value)}em`
+
+	for (const $el of document.querySelectorAll('social-media-post')) {
+		assert($el instanceof HTMLElement)
+		$el.style.setProperty('--emoji-size', size)
+	}
+})
 
 /**
  * @param {string} tag

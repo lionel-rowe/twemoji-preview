@@ -8,6 +8,7 @@
 	box-shadow: 0 1px 3px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+	--emoji-size: 1.2em;
 }
 
 .post {
@@ -60,14 +61,7 @@
 	outline-offset: 1px;
 }
 
-.content img {
-	width: 1.2em;
-	height: 1.2em;
-	vertical-align: -0.1em;
-	margin: 0 0.05em 0 0.1em;
-}
-
 .emoji {
-	width: 1.2em;
-	height: 1.2em;
+	width: var(--emoji-size);
+	height: var(--emoji-size);
 }

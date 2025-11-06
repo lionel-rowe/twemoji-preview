@@ -1,4 +1,4 @@
-const pattern = new URLPattern('https://github.com/:owner/:repo/pull/:prId{/}?')
+const pattern = new URLPattern('https://github.com/:owner/:repo/pull/:prId')
 
 export type PrInfo = {
 	repoOwner: string
@@ -14,7 +14,9 @@ export type PrInfo = {
  * @returns An object containing the list of changed SVG files and commit hashes
  */
 export async function getPrInfo(pr: number | string | URL): Promise<PrInfo> {
-	const htmlUrl = typeof pr === 'number' ? `https://github.com/jdecked/twemoji/pull/${pr}` : pr.toString()
+	const htmlUrl = typeof pr === 'number'
+		? `https://github.com/jdecked/twemoji/pull/${pr}`
+		: pr.toString().replace(/\/+$/, '')
 	const urlMatch = pattern.exec(htmlUrl)
 	if (!urlMatch) {
 		throw new Error('Invalid GitHub PR URL format')

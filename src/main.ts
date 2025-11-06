@@ -1,4 +1,3 @@
-import { HttpSaver } from '@li/http-saver'
 import { serveDir } from '@std/http/file-server'
 import { getPrInfo } from './gh.ts'
 
@@ -14,7 +13,6 @@ Deno.serve(async (req) => {
 
 			const pr = !/\D/.test(_pr) ? Number(_pr) : new URL(_pr)
 
-			using _ = new HttpSaver().stubFetch()
 			return Response.json(await getPrInfo(pr))
 		}
 	}
