@@ -6,8 +6,6 @@
 /** @typedef {import('@twemoji/api').TwemojiOptions} TwemojiOptions */
 const twemoji = /** @type {typeof globalThis & { twemoji: Twemoji }} */ (globalThis).twemoji
 
-import snarkdown from 'https://cdn.jsdelivr.net/npm/snarkdown@2.0.0/dist/snarkdown.es.js'
-
 initThemeToggle()
 
 /** @returns {Promise<import('../gh.ts').PrInfo>} */
@@ -185,29 +183,29 @@ class SocialMediaPost extends HTMLElement {
 		const version = this.getAttribute('version') || 'latest'
 		const config = getConfig(version)
 
-		return snarkdown(html)
-			.replaceAll(/<(?!a\s|\/a>)/gi, '&lt;')
+		return html
+			.replaceAll(/\[(?<name>.+?)\]\((?<url>.+?)\)/g, '<a href="$<url>">$<name></a>')
 			.replaceAll(/(?<=>|^)[^<>]+(?=<|$)/g, (m) => twemoji.parse(m, config))
 	}
 }
 
 customElements.define('social-media-post', SocialMediaPost)
 
+const prPost = document.createElement('social-media-post')
+prPost.setAttribute('version', commitHash)
+prPost.setAttribute('user', user)
+prPost.setAttribute('content', `Check out my PR [${title}](${htmlUrl})!\n\n${emojis.join('')}`)
+
 const currentPost = document.createElement('social-media-post')
 currentPost.setAttribute('user', repoOwner)
 currentPost.setAttribute(
 	'content',
-	`Here ${emojis.length === 1 ? 'is the emoji' : 'are the emojis'} before:\n${emojis.join('')}`,
+	`Here ${emojis.length === 1 ? 'is the emoji' : 'are the emojis'} before:\n\n${emojis.join('')}`,
 )
 
-const prPost = document.createElement('social-media-post')
-prPost.setAttribute('version', commitHash)
-prPost.setAttribute('user', user)
-prPost.setAttribute('content', `Check out my PR [${title}](${htmlUrl})!\n${emojis.join('')}`)
-
 assert($target instanceof HTMLElement)
-$target.appendChild(currentPost)
 $target.appendChild(prPost)
+$target.appendChild(currentPost)
 
 function initThemeToggle() {
 	const themeToggle = document.querySelector('#theme-toggle')
