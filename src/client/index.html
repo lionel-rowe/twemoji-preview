@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Twemoji Preview</title>
+		<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+		<link rel="stylesheet" href="/styles.css">
+		<template id="social-media-post">
+			<link rel="stylesheet" href="/social-media-post.css">
+			<div class="post">
+				<div class="user"></div>
+				<div class="content"></div>
+			</div>
+		</template>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<h1>Twemoji Preview</h1>
+				<button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+					<span class="theme-toggle-icon"></span>
+				</button>
+			</header>
+			<div id="target"></div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js"></script>
+		<script src="/main.mjs" type="module"></script>
+	</body>
+</html>
