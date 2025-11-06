@@ -48,11 +48,16 @@ async function getBasePrInfo(apiUrl: string) {
 }
 
 async function getFilePaths(apiUrl: string) {
-	apiUrl += '/files'
-	const res = await fetch(apiUrl)
-	if (!res.ok) throw new Error(`Failed to fetch ${apiUrl}: ${res.status}`)
+	const files: { filename: string }[] = []
 
-	const files: { filename: string }[] = await res.json()
+	let url: string | null = `${apiUrl}/files`
+
+	while (url != null) {
+		const res: Response = await fetch(url)
+		if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`)
+		files.push(...await res.json())
+		url = res.headers.get('link')?.match(/<(?<next>[^>]+)>;\s*rel=(?<quot>['"])next\k<quot>/)?.groups?.next ?? null
+	}
 
 	return files
 		.filter((file) => file.filename.startsWith('assets/svg/'))
