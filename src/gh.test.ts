@@ -19,11 +19,18 @@ Deno.test(getPrInfo.name, async () => {
 
 		assertEquals(result, {
 			title: "Make the face mask emoji's mask look more like a real face mask",
-			commitHash: 'a283544d5c2ccf90b0fedc506bdf9025bbc020ef',
-			changedSvgFiles: ['assets/svg/1f637.svg'],
-			repoOwner: 'jdecked',
 			user: 'HeyIgna',
 			htmlUrl: 'https://github.com/jdecked/twemoji/pull/126',
+			commit: {
+				label: 'HeyIgna:make-face-mask-realistic',
+				sha: 'a283544d5c2ccf90b0fedc506bdf9025bbc020ef',
+			},
+			repo: {
+				owner: 'jdecked',
+				label: 'jdecked:main',
+				sha: '50c7abfe6813680455781862f7b34305cd1eb9f5',
+			},
+			changedSvgFiles: ['assets/svg/1f637.svg'],
 		})
 	}
 })

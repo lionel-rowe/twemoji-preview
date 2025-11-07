@@ -4,10 +4,9 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Twemoji Preview</title>
-		<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 		<link rel="stylesheet" href="/styles.css">
-		<template id="social-media-post">
-			<link rel="stylesheet" href="/social-media-post.css">
+		<template id="twemoji-card">
+			<link rel="stylesheet" href="/twemoji-card.css">
 			<div class="post">
 				<div class="user"></div>
 				<div class="content"></div>
@@ -18,20 +17,46 @@
 		<div class="container">
 			<header>
 				<h1>Twemoji Preview</h1>
-				<button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+				<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
 					<span class="theme-toggle-icon"></span>
 				</button>
 			</header>
-
-			<form>
-				<label>
-					Emoji size
-					<input disabled type="range" min="1" max="10" step="0.1" value="5" id="emoji-size-slider">
-				</label>
+			<form id="emoji-form">
+				<fieldset disabled>
+					<legend>Emoji size</legend>
+					<label>
+						<input type="range" min="1" max="10" step="0.1" value="5" name="emoji-size-slider">
+						<span>5</span>
+					</label>
+				</fieldset>
+				<fieldset disabled>
+					<legend>Emoji match mode</legend>
+					<label>
+						<input type="radio" name="emoji-match-mode" value="twemoji" checked>
+						<abbr title="Match emoji based on Twemoji’s built-in parsing">
+							Twemoji
+						</abbr>
+					</label>
+					<label>
+						<input type="radio" name="emoji-match-mode" value="rgi">
+						<abbr
+							title="Match all “recommended-for-general-interchange” emoji using /\p{RGI_Emoji}/gv regex"
+						>
+							RGI
+						</abbr>
+					</label>
+					<label>
+						<input type="radio" name="emoji-match-mode" value="rgi-incoming">
+						<abbr
+							title="Match all emoji that are available in the incoming PR, based on file name, in addition to all “recommended-for-general-interchange” emoji"
+						>
+							RGI + incoming
+						</abbr>
+					</label>
+				</fieldset>
 			</form>
 			<div id="target"></div>
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js"></script>
 		<script src="/main.mjs" type="module"></script>
 	</body>
 </html>
