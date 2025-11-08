@@ -11,42 +11,6 @@ initThemeToggle()
 
 const RGI_REGEX = /\p{RGI_Emoji}/v
 
-/** @returns {Promise<import('../gh.ts').PrInfo>} */
-async function getPrInfo() {
-	const url = new URL('/api/pr', location.href)
-	const pr = new URLSearchParams(location.search).get('pr')
-
-	if (pr == null) {
-		// Simulate loading delay for demo
-		await new Promise((resolve) => setTimeout(resolve, 1500))
-		return {
-			title: 'Example PR',
-			user: 'example-user',
-			htmlUrl: 'https://example.com/',
-			commit: {
-				label: 'example-user:example-branch',
-				sha: 'latest',
-			},
-			repo: {
-				owner: 'jdecked',
-				label: 'jdecked:main',
-				sha: 'latest',
-			},
-			changedSvgFiles: [...'🥳👻🐉👩🏽‍🔧'.match(new RegExp(RGI_REGEX, 'gv')) ?? []]
-				.map((m) => `/assets/svg/${[...m].map((c) => c.codePointAt(0)?.toString(16)).join('-')}.svg`),
-		}
-	}
-
-	url.searchParams.set('pr', pr)
-
-	const res = await fetch(url)
-	if (!res.ok) {
-		throw new Error(`Failed to fetch info for PR ${pr}: ${res.status}`)
-	}
-
-	return await res.json()
-}
-
 const $target = document.querySelector('#target')
 
 // Show loading spinner
@@ -62,22 +26,8 @@ function showLoadingSpinner() {
 // Show loading spinner
 const loadingSpinner = showLoadingSpinner()
 
-// Fetch data
-const { repo, title, commit, changedSvgFiles, htmlUrl } = await getPrInfo()
-
-document.title = document.title.replace(/^(.+ - )?/s, `${title} - `)
-
 // Remove loading spinner
 loadingSpinner.remove()
-
-const emojis = changedSvgFiles.map((filePath) => {
-	const m = filePath.match(/\/(?<icon>[^/.]+)\.\w+$/)
-	if (m?.groups == null) return null
-	return m.groups.icon
-		.split('-')
-		.map((cp) => String.fromCodePoint(parseInt(cp, 16)))
-		.join('')
-}).filter((emoji) => emoji != null)
 
 const $template = document.querySelector('#twemoji-card')
 
@@ -92,7 +42,7 @@ class TwemojiCard extends HTMLElement {
 		this.shadowRoot?.append($template.content.cloneNode(true))
 	}
 
-	static observedAttributes = ['version', 'content', 'user', 'match-mode']
+	static observedAttributes = ['version', 'content', 'user', 'match-mode', 'emojis']
 	static {
 		for (const attr of this.observedAttributes) {
 			// kebab-case -> camelCase
@@ -227,7 +177,7 @@ class TwemojiCard extends HTMLElement {
 			case 'rgi-incoming': {
 				regex = new RegExp(
 					[
-						...[...emojis]
+						...[...JSON.parse(this.getAttribute('emojis') ?? '[]')]
 							.sort((a, b) => b.length - a.length)
 							.map((x) => RegExp.escape(x)),
 						RGI_REGEX.source,
@@ -243,32 +193,6 @@ class TwemojiCard extends HTMLElement {
 }
 
 customElements.define('twemoji-card', TwemojiCard)
-
-/** @param {string[]} emojis */
-function getReplyContent(emojis) {
-	switch (emojis.length) {
-		case 0:
-			return 'No SVG emojis were added or modified in this PR.'
-		case 1:
-			return `Here is the emoji before:\n\n${emojis.join('')}`
-		default:
-			return `Here are the emojis before:\n\n${emojis.join('')}`
-	}
-}
-
-assert($target instanceof HTMLElement)
-$target.append(
-	Object.assign(document.createElement('twemoji-card'), {
-		version: commit.sha,
-		user: commit.label,
-		content: [`Check out my PR [${title}](${htmlUrl})!`, emojis.join('')].filter(Boolean).join('\n\n'),
-	}),
-	Object.assign(document.createElement('twemoji-card'), {
-		version: repo.sha,
-		user: repo.label,
-		content: getReplyContent(emojis),
-	}),
-)
 
 function initThemeToggle() {
 	const $themeToggle = document.querySelector('#theme-toggle')

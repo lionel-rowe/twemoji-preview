@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Twemoji Preview</title>
+		<title>{{subtitle}} - Twemoji Preview</title>
 		<link rel="stylesheet" href="/styles.css">
 		<template id="twemoji-card">
 			<link rel="stylesheet" href="/twemoji-card.css">
@@ -55,7 +55,21 @@
 					</label>
 				</fieldset>
 			</form>
-			<div id="target"></div>
+			<div id="target">
+				<twemoji-card
+					version="{{commit.sha}}"
+					user="{{commit.label}}"
+					content="{{incomingContent}}"
+					emojis="{{emojisJson}}"
+				></twemoji-card>
+
+				<twemoji-card
+					version="{{repo.sha}}"
+					user="{{repo.label}}"
+					content="{{replyContent}}"
+					emojis="{{emojisJson}}"
+				></twemoji-card>
+			</div>
 		</div>
 		<!-- "twemoji": "https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.esm.js" -->
 		<script type="importmap">
