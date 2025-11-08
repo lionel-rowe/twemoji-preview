@@ -2,11 +2,8 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-/** @typedef {import('@twemoji/api').Twemoji} Twemoji */
-/** @typedef {import('@twemoji/api').TwemojiOptions} TwemojiOptions */
-import _twemoji from 'https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.esm.js'
-/** @type {Twemoji} */
-const twemoji = _twemoji
+// @ts-types="./vendor/twemoji.d.ts"
+import twemoji from 'twemoji'
 
 /** @typedef {{ base: string; folder: string; ext: string; }} Config */
 
@@ -212,15 +209,16 @@ class TwemojiCard extends HTMLElement {
 	/** @param {string} m */
 	#parseEmojis(m) {
 		const version = this.getAttribute('version') || 'latest'
-		const config = getConfig(version)
+
+		let regex
 
 		switch (this.getAttribute('match-mode')) {
 			case 'rgi': {
-				const re = new RegExp(RGI_REGEX, 'gv')
-				return m.replaceAll(re, (m) => this.#replaceEmoji(m, config))
+				regex = new RegExp(RGI_REGEX, 'gv')
+				break
 			}
 			case 'rgi-incoming': {
-				const re = new RegExp(
+				regex = new RegExp(
 					[
 						...[...emojis]
 							.sort((a, b) => b.length - a.length)
@@ -229,12 +227,11 @@ class TwemojiCard extends HTMLElement {
 					].join('|'),
 					'gv',
 				)
-				return m.replaceAll(re, (m) => this.#replaceEmoji(m, config))
-			}
-			default: {
-				return twemoji.parse(m, config)
+				break
 			}
 		}
+
+		return twemoji.parse(m, { ...getConfig(version), regex })
 	}
 
 	/**

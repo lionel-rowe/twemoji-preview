@@ -1,0 +1,8 @@
+{
+	"ts": "2025-11-08T03:47:57.977Z",
+	"buildScript": "scripts/build.ts",
+	"remote": "https://github.com/lionel-rowe/twemoji",
+	"branch": "customize-regex",
+	"sha": "afbe11e836f8a964778167499b60c39f6910c501",
+	"license": "https://github.com/jdecked/twemoji/blob/main/LICENSE"
+}
