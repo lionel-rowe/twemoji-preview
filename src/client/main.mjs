@@ -39,7 +39,12 @@ async function getPrInfo() {
 
 	url.searchParams.set('pr', pr)
 
-	return await (await fetch(url)).json()
+	const res = await fetch(url)
+	if (!res.ok) {
+		throw new Error(`Failed to fetch info for PR ${pr}: ${res.status}`)
+	}
+
+	return await res.json()
 }
 
 const $target = document.querySelector('#target')
@@ -59,6 +64,8 @@ const loadingSpinner = showLoadingSpinner()
 
 // Fetch data
 const { repo, title, commit, changedSvgFiles, htmlUrl } = await getPrInfo()
+
+document.title = document.title.replace(/^(.+ - )?/s, `${title} - `)
 
 // Remove loading spinner
 loadingSpinner.remove()
@@ -233,45 +240,33 @@ class TwemojiCard extends HTMLElement {
 
 		return twemoji.parse(m, { ...getConfig(version), regex })
 	}
-
-	/**
-	 * Modified from https://github.com/jdecked/twemoji/blob/50c7abfe6813/scripts/build.js#L365-L437
-	 * @param {string} emoji
-	 * @param {Config} config
-	 */
-	#replaceEmoji(emoji, config) {
-		// https://github.com/jdecked/twemoji/blob/50c7abfe6813/scripts/build.js#L344-L350
-		// Remove any emoji-style variant selector (U+FE0F),
-		// unless there are one or more zero-width-joiners (U+200D)
-		const clean = emoji.includes('\u200D') ? emoji : emoji.replaceAll('\uFE0F', '')
-		// https://github.com/jdecked/twemoji/blob/50c7abfe6813/scripts/build.js#L571-L589
-		const icon = [...clean].map((c) => c.codePointAt(0)?.toString(16)).join('-')
-
-		if (icon) {
-			// https://github.com/jdecked/twemoji/blob/50c7abfe6813/scripts/build.js#L302-L304
-			const src = `${config.base}${config.folder}/${icon}${config.ext}`
-			return `<img class="emoji" draggable="false" alt="${escapeHtml(emoji)}" src="${escapeHtml(src)}">`
-		}
-
-		return emoji
-	}
 }
 
 customElements.define('twemoji-card', TwemojiCard)
+
+/** @param {string[]} emojis */
+function getReplyContent(emojis) {
+	switch (emojis.length) {
+		case 0:
+			return 'No SVG emojis were added or modified in this PR.'
+		case 1:
+			return `Here is the emoji before:\n\n${emojis.join('')}`
+		default:
+			return `Here are the emojis before:\n\n${emojis.join('')}`
+	}
+}
 
 assert($target instanceof HTMLElement)
 $target.append(
 	Object.assign(document.createElement('twemoji-card'), {
 		version: commit.sha,
 		user: commit.label,
-		content: `Check out my PR [${title}](${htmlUrl})!\n\n${emojis.join('')}`,
+		content: [`Check out my PR [${title}](${htmlUrl})!`, emojis.join('')].filter(Boolean).join('\n\n'),
 	}),
 	Object.assign(document.createElement('twemoji-card'), {
 		version: repo.sha,
 		user: repo.label,
-		content: `Here ${emojis.length === 1 ? 'is the current emoji' : 'are the current emojis'}:\n\n${
-			emojis.join('')
-		}`,
+		content: getReplyContent(emojis),
 	}),
 )
 
